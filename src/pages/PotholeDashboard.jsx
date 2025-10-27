@@ -1481,6 +1481,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Filter, Navigation, List, BarChart3, AlertCircle, Clock, CheckCircle, MapPin } from 'lucide-react';
 import { base_url } from '../utils/base_url';
+import { useNavigate } from 'react-router-dom';
+import CustomButton from '../components/CustomButton';
 
 const API_URL = `${base_url}/api`;
 
@@ -1501,6 +1503,7 @@ const PotholeDashboard = () => {
     const googleMapRef = useRef(null);
     const markersRef = useRef([]);
     const infoWindowsRef = useRef([]);
+    const navigate = useNavigate()
 
     // Initialize map only once when component mounts and Google Maps is loaded
     useEffect(() => {
@@ -1567,6 +1570,21 @@ const PotholeDashboard = () => {
 
             const markerColor = getSeverityMarkerColor(pothole.severity);
 
+            // const marker = new window.google.maps.Marker({
+            //     position,
+            //     map: googleMapRef.current,
+            //     title: pothole.location?.address || '',
+            //     icon: {
+            //         path: window.google.maps.SymbolPath.CIRCLE,
+            //         scale: 12,
+            //         fillColor: markerColor,
+            //         fillOpacity: 1,
+            //         strokeColor: '#ffffff',
+            //         strokeWeight: 3,
+            //     },
+            //     animation: pothole.status === 'reported' ? window.google.maps.Animation.BOUNCE : undefined
+            // });
+
             const marker = new window.google.maps.Marker({
                 position,
                 map: googleMapRef.current,
@@ -1579,31 +1597,93 @@ const PotholeDashboard = () => {
                     strokeColor: '#ffffff',
                     strokeWeight: 3,
                 },
-                animation: pothole.status === 'reported' ? window.google.maps.Animation.BOUNCE : undefined
+                // animation: pothole.status === 'reported' ? window.google.maps.Animation.BOUNCE : undefined
             });
 
+            marker._id = pothole._id; // 🔹 Save reference
+
+
+            // const infoHtml = `
+            //     <div style="padding:10px;min-width:250px">
+            //         <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:bold;">${escapeHtml(pothole.location?.address || 'Unknown')}</h3>
+            //          ${pothole?.image
+            //         ? `<img src="${escapeHtml(pothole.image)}" 
+            //             alt="Pothole Image"
+            //             style="width:100%;height:auto;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;border:1px solid #ddd;" />`
+            //         : `<div style="width:100%;height:150px;background:#f2f2f2;display:flex;align-items:center;justify-content:center;border-radius:8px;margin-bottom:8px;color:#999;font-size:13px;">No Image</div>`
+            //     }
+
+            //         <div style="margin-bottom:8px;">
+            //             <span style="display:inline-block;padding:4px 10px;background-color:${markerColor};color:white;border-radius:4px;font-size:12px;font-weight:bold;text-transform:uppercase;">
+            //                 ${escapeHtml(pothole.severity || '')}
+            //             </span>
+            //         </div>
+            //         <p style="margin:6px 0;font-size:13px;"><strong>Position:</strong> ${escapeHtml(pothole.position || 'N/A')}</p>
+            //         <p style="margin:6px 0;font-size:13px;"><strong>Status:</strong> ${escapeHtml(pothole.status || 'N/A')}</p>
+            //         <p style="margin:6px 0;font-size:13px;color:#666;">${escapeHtml(pothole.description || '')}</p>
+            //         <p style="margin:6px 0 0 0;font-size:12px;color:#999;">Reported by ${escapeHtml(pothole.reportedBy || 'Unknown')} on ${formatDate(pothole.timestamp)}</p>
+            //     </div>
+            // `;
+
+            // const infoWindow = new window.google.maps.InfoWindow({ content: infoHtml });
+
             const infoHtml = `
-                <div style="padding:10px;min-width:250px">
-                    <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:bold;">${escapeHtml(pothole.location?.address || 'Unknown')}</h3>
-                    <div style="margin-bottom:8px;">
-                        <span style="display:inline-block;padding:4px 10px;background-color:${markerColor};color:white;border-radius:4px;font-size:12px;font-weight:bold;text-transform:uppercase;">
-                            ${escapeHtml(pothole.severity || '')}
-                        </span>
-                    </div>
-                    <p style="margin:6px 0;font-size:13px;"><strong>Position:</strong> ${escapeHtml(pothole.position || 'N/A')}</p>
-                    <p style="margin:6px 0;font-size:13px;"><strong>Status:</strong> ${escapeHtml(pothole.status || 'N/A')}</p>
-                    <p style="margin:6px 0;font-size:13px;color:#666;">${escapeHtml(pothole.description || '')}</p>
-                    <p style="margin:6px 0 0 0;font-size:12px;color:#999;">Reported by ${escapeHtml(pothole.reportedBy || 'Unknown')} on ${formatDate(pothole.timestamp)}</p>
-                </div>
-            `;
+  <div style="padding:10px;min-width:250px;font-family:system-ui,Segoe UI,Roboto;">
+    <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:600;color:#222;">
+      ${escapeHtml(pothole.location?.address || "Unknown")}
+    </h3>
+
+    ${pothole?.image
+                    ? `<img src="${escapeHtml(pothole.image)}" 
+            alt="Pothole Image"
+            style="width:100%;height:auto;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;border:1px solid #ddd;" />`
+                    : `<div style="width:100%;height:150px;background:#f2f2f2;display:flex;align-items:center;justify-content:center;border-radius:8px;margin-bottom:8px;color:#999;font-size:13px;">No Image</div>`
+                }
+
+    <div style="margin-bottom:8px;">
+      <span style="display:inline-block;padding:4px 10px;background-color:${markerColor};color:white;border-radius:4px;font-size:12px;font-weight:bold;text-transform:uppercase;">
+        ${escapeHtml(pothole.severity || "")}
+      </span>
+    </div>
+
+    
+    <p style="margin:6px 0;font-size:13px;"><strong>Position:</strong> ${escapeHtml(pothole.position || "N/A")}</p>
+    <p style="margin:6px 0;font-size:13px;"><strong>Status:</strong> ${escapeHtml(pothole.status || "N/A")}</p>
+    <p style="margin:6px 0;font-size:13px;color:#555;">${escapeHtml(pothole.description || "")}</p>
+    <p style="margin:8px 0 10px 0;font-size:12px;color:#888;">Reported by ${escapeHtml(pothole.reportedBy || "Unknown")} on ${formatDate(pothole.timestamp)}</p>
+    
+    <!-- ✅ View Details Button -->
+   <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+     <a 
+       href="/pothole/${escapeHtml(pothole._id)}"
+       style="display:inline-block;padding:8px 14px;background:#2563eb;color:white;font-size:13px;font-weight:500;
+       text-decoration:none;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.15);
+       transition:all 0.2s ease;"
+       onmouseover="this.style.background='#1e4fd1';"
+       onmouseout="this.style.background='#2563eb';"
+     >
+       View Details
+     </a>
+   </div>
+   
+  </div>
+`;
 
             const infoWindow = new window.google.maps.InfoWindow({ content: infoHtml });
+
+
+            // marker.addListener('click', () => {
+            //     infoWindowsRef.current.forEach(iw => { try { iw.close(); } catch (e) { } });
+            //     infoWindow.open(googleMapRef.current, marker);
+            //     setSelectedPothole(pothole);
+            // });
 
             marker.addListener('click', () => {
                 infoWindowsRef.current.forEach(iw => { try { iw.close(); } catch (e) { } });
                 infoWindow.open(googleMapRef.current, marker);
                 setSelectedPothole(pothole);
             });
+
 
             markersRef.current.push(marker);
             infoWindowsRef.current.push(infoWindow);
@@ -1797,6 +1877,26 @@ const PotholeDashboard = () => {
             .replace(/'/g, '&#039;');
     }
 
+    const handleCardClick = (pothole) => {
+        setSelectedPothole(pothole);
+
+        // Find the corresponding marker
+        const markerIndex = markersRef.current.findIndex(m => m._id === pothole._id);
+        const marker = markersRef.current[markerIndex];
+        const infoWindow = infoWindowsRef.current[markerIndex];
+
+        if (marker && infoWindow && window.google && window.google.maps) {
+            // Close other info windows
+            infoWindowsRef.current.forEach(iw => { try { iw.close(); } catch (e) { } });
+            // Open the clicked one
+            infoWindow.open(googleMapRef.current, marker);
+            // Center and zoom map
+            googleMapRef.current.panTo(marker.getPosition());
+            googleMapRef.current.setZoom(16);
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm border-b">
@@ -1906,7 +2006,8 @@ const PotholeDashboard = () => {
                                         <div className="p-4 text-center text-gray-500">No potholes found with current filters</div>
                                     ) : (
                                         filteredPotholes.map((pothole) => (
-                                            <div key={pothole._id} onClick={() => setSelectedPothole(pothole)} className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition ${selectedPothole?._id === pothole._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}>
+                                            <div key={pothole._id} onClick={() => handleCardClick(pothole)}
+                                                className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition ${selectedPothole?._id === pothole._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}>
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div className="flex-1">
                                                         <div className={`inline-block px-2 py-1 rounded text-xs font-semibold text-white mb-2 ${getSeverityColor(pothole.severity)}`}>{String(pothole.severity || '').toUpperCase()}</div>
@@ -1918,7 +2019,12 @@ const PotholeDashboard = () => {
                                                             {pothole.status}
                                                         </div>
                                                     </div>
-                                                    <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                                    {/* <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" /> */}
+                                                    <CustomButton
+                                                        label="View"
+                                                        to={`/pothole/${pothole?._id}`}
+                                                        color="blue"
+                                                    />
                                                 </div>
                                                 <div className="text-xs text-gray-500 mt-2">{new Date(pothole.timestamp).toLocaleString()}</div>
                                             </div>
